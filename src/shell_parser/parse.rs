@@ -1915,10 +1915,10 @@ impl<'bump> Parser<'bump> {
 
         Ok(match atoms.len() {
             0 => None,
-            1 => {
-                debug_assert!(atoms.capacity() == 1);
-                Some(ast::Atom::new_simple(atoms.into_iter().next().unwrap()))
-            }
+            // No capacity assertion here: `with_capacity_in(1)` may receive a
+            // larger block from the size-class-rounding arena allocator, and
+            // `Vec` records the actual capacity it was handed.
+            1 => Some(ast::Atom::new_simple(atoms.into_iter().next().unwrap())),
             _ => Some(ast::Atom::Compound(ast::CompoundAtom {
                 atoms: atoms.into_bump_slice(),
                 brace_expansion_hint: has_brace_open && has_brace_close && has_comma,
